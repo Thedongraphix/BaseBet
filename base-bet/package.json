@@ -8,7 +8,10 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "deploy:contract": "ts-node src/contracts/deploy.ts",
-    "test": "echo \"No tests specified\" && exit 0"
+    "deploy:real": "npx hardhat run scripts/deploy.ts --network base-sepolia",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.ts --network base-mainnet",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test"
   },
   "keywords": [
     "twitter",
@@ -23,19 +26,22 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@coinbase/onchainkit": "^0.10.0",
     "@coinbase/coinbase-sdk": "^0.0.15",
-    "twitter-api-v2": "^1.15.0",
-    "ethers": "^6.8.0",
+    "@coinbase/onchainkit": "^0.10.0",
     "dotenv": "^16.3.1",
-    "openai": "^4.20.1"
+    "openai": "^4.20.1",
+    "twitter-api-v2": "^1.15.0"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.9",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
     "@types/node": "^20.8.0",
-    "typescript": "^5.2.0",
-    "ts-node": "^10.9.1"
+    "ethers": "^6.15.0",
+    "hardhat": "^2.25.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.0"
   },
   "engines": {
     "node": ">=18.0.0"
   }
-} 
+}

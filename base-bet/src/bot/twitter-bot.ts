@@ -9,6 +9,7 @@ export class TwitterBot {
   private mentionHandler: MentionHandler;
   private isRunning = false;
   private lastMentionId: string | null = null;
+  private startTime: Date;
 
   constructor() {
     // Use OAuth 1.1 for full read/write access
@@ -21,6 +22,7 @@ export class TwitterBot {
 
     this.contractService = new ContractService();
     this.mentionHandler = new MentionHandler(this.twitterClient, this.contractService);
+    this.startTime = new Date(); // Record when bot starts
   }
 
   async start(): Promise<void> {
@@ -58,9 +60,13 @@ export class TwitterBot {
       return;
     }
 
+    // Initialize lastMentionId to avoid processing old mentions
+    await this.initializeLastMentionId();
+
     this.isRunning = true;
     console.log('🚀 Bot started successfully!');
     console.log('📡 Polling for mentions...');
+    console.log(`⏰ Only processing mentions after: ${this.startTime.toISOString()}`);
     
     // Start polling for mentions
     await this.pollForMentions();
@@ -69,6 +75,28 @@ export class TwitterBot {
   async stop(): Promise<void> {
     console.log('🛑 Stopping bot...');
     this.isRunning = false;
+  }
+
+  private async initializeLastMentionId(): Promise<void> {
+    try {
+      console.log('🔄 Getting recent mentions to avoid replying to old tweets...');
+      const me = await this.twitterClient.v2.me();
+      const recentMentions = await this.twitterClient.v2.userMentionTimeline(me.data.id, {
+        max_results: 5,
+        'tweet.fields': ['created_at']
+      });
+
+      if (recentMentions.data?.data && recentMentions.data.data.length > 0) {
+        // Sort by creation time and get the most recent
+        const sortedMentions = recentMentions.data.data.sort((a: TweetV2, b: TweetV2) => 
+          new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime()
+        );
+        this.lastMentionId = sortedMentions[0].id;
+        console.log(`✅ Set lastMentionId to: ${this.lastMentionId}`);
+      }
+    } catch (error) {
+      console.log('⚠️  Could not initialize lastMentionId, will process all mentions');
+    }
   }
 
   private async pollForMentions(): Promise<void> {
@@ -125,8 +153,16 @@ export class TwitterBot {
           continue;
         }
 
+        // Skip mentions older than bot start time (safety check)
+        const mentionTime = new Date(mention.created_at!);
+        if (mentionTime < this.startTime) {
+          console.log(`⏭️  Skipping old mention from ${mentionTime.toISOString()}`);
+          continue;
+        }
+
         console.log(`\n🔄 Processing mention from ${mention.author_id}:`);
         console.log(`📝 "${mention.text}"`);
+        console.log(`⏰ Created: ${mention.created_at}`);
         
         try {
           await this.mentionHandler.processMention(mention);

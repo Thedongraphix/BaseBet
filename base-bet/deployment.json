@@ -1,7 +1,9 @@
 {
   "network": "base-sepolia",
-  "contractAddress": "0x1111111111111111111111111111111111111111",
-  "deployedAt": "2025-07-13T12:59:36.872Z",
-  "deployer": "0x336D75CE358bE96a19D8874F3aE508C045B74828",
-  "isMockDeployment": true
+  "chainId": 84532,
+  "contractAddress": "0xad8063e222D6B893eEBDe0f85C398b32f0A3cF2C",
+  "deployedAt": "2025-07-13T15:05:46.078Z",
+  "deployer": "0x0408a00e58eCb6D4914C4fD3DA7B9316cda8651d",
+  "deploymentBlockNumber": 28325429,
+  "isMockDeployment": false
 }

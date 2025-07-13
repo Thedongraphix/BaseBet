@@ -68,15 +68,13 @@ class ContractService {
     }
     async createMarket(tweetId, prediction, durationDays = 30) {
         try {
-            // For mock deployment, simulate market creation
-            if (config_1.config.blockchain.contractAddress === '0x1111111111111111111111111111111111111111') {
-                console.log(`📝 Mock: Creating market for tweet ${tweetId}`);
-                console.log(`📄 Prediction: ${prediction}`);
-                console.log(`⏰ Duration: ${durationDays} days`);
-                return true;
-            }
+            console.log(`📝 Creating market for tweet ${tweetId}`);
+            console.log(`📄 Prediction: ${prediction}`);
+            console.log(`⏰ Duration: ${durationDays} days`);
             const tx = await this.contract.createMarket(tweetId, prediction, durationDays);
+            console.log(`⏳ Transaction sent: ${tx.hash}`);
             await tx.wait();
+            console.log(`✅ Market created successfully!`);
             return true;
         }
         catch (error) {
@@ -86,12 +84,10 @@ class ContractService {
     }
     async marketExists(tweetId) {
         try {
-            // For mock deployment, simulate market existence check
-            if (config_1.config.blockchain.contractAddress === '0x1111111111111111111111111111111111111111') {
-                console.log(`🔍 Mock: Checking if market exists for tweet ${tweetId}`);
-                return false; // Always return false for mock to allow testing
-            }
-            return await this.contract.marketExists(tweetId);
+            console.log(`🔍 Checking if market exists for tweet ${tweetId}`);
+            const exists = await this.contract.marketExists(tweetId);
+            console.log(`${exists ? '✅' : '❌'} Market exists: ${exists}`);
+            return exists;
         }
         catch (error) {
             console.error('Error checking market existence:', error);
@@ -100,21 +96,9 @@ class ContractService {
     }
     async getMarketInfo(tweetId) {
         try {
-            // For mock deployment, return mock market info
-            if (config_1.config.blockchain.contractAddress === '0x1111111111111111111111111111111111111111') {
-                console.log(`📊 Mock: Getting market info for tweet ${tweetId}`);
-                return {
-                    prediction: "Mock prediction for testing",
-                    deadline: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60), // 30 days from now
-                    resolved: false,
-                    outcome: false,
-                    totalAgree: "0.1",
-                    totalDisagree: "0.05",
-                    betCount: "3"
-                };
-            }
+            console.log(`📊 Getting market info for tweet ${tweetId}`);
             const result = await this.contract.getMarketInfo(tweetId);
-            return {
+            const marketInfo = {
                 prediction: result[0],
                 deadline: result[1],
                 resolved: result[2],
@@ -123,6 +107,8 @@ class ContractService {
                 totalDisagree: ethers_1.ethers.formatEther(result[5]),
                 betCount: result[6].toString()
             };
+            console.log(`✅ Market info retrieved: ${marketInfo.prediction.substring(0, 50)}...`);
+            return marketInfo;
         }
         catch (error) {
             console.error('Error getting market info:', error);
@@ -131,17 +117,15 @@ class ContractService {
     }
     async placeBet(tweetId, position, amount) {
         try {
-            // For mock deployment, simulate bet placement
-            if (config_1.config.blockchain.contractAddress === '0x1111111111111111111111111111111111111111') {
-                console.log(`💰 Mock: Placing bet for tweet ${tweetId}`);
-                console.log(`🎯 Position: ${position ? 'AGREE' : 'DISAGREE'}`);
-                console.log(`💵 Amount: ${amount} ETH`);
-                return true;
-            }
+            console.log(`💰 Placing bet for tweet ${tweetId}`);
+            console.log(`🎯 Position: ${position ? 'AGREE' : 'DISAGREE'}`);
+            console.log(`💵 Amount: ${amount} ETH`);
             const tx = await this.contract.placeBet(tweetId, position, {
                 value: ethers_1.ethers.parseEther(amount)
             });
+            console.log(`⏳ Transaction sent: ${tx.hash}`);
             await tx.wait();
+            console.log(`✅ Bet placed successfully!`);
             return true;
         }
         catch (error) {
@@ -151,13 +135,11 @@ class ContractService {
     }
     async getPendingWithdrawals(address) {
         try {
-            // For mock deployment, return mock withdrawal amount
-            if (config_1.config.blockchain.contractAddress === '0x1111111111111111111111111111111111111111') {
-                console.log(`💸 Mock: Getting pending withdrawals for ${address}`);
-                return "0.025";
-            }
+            console.log(`💸 Getting pending withdrawals for ${address}`);
             const amount = await this.contract.pendingWithdrawals(address);
-            return ethers_1.ethers.formatEther(amount);
+            const formattedAmount = ethers_1.ethers.formatEther(amount);
+            console.log(`✅ Pending withdrawals: ${formattedAmount} ETH`);
+            return formattedAmount;
         }
         catch (error) {
             console.error('Error getting pending withdrawals:', error);
@@ -166,13 +148,11 @@ class ContractService {
     }
     async withdraw() {
         try {
-            // For mock deployment, simulate withdrawal
-            if (config_1.config.blockchain.contractAddress === '0x1111111111111111111111111111111111111111') {
-                console.log(`💰 Mock: Withdrawing funds`);
-                return true;
-            }
+            console.log(`💰 Withdrawing funds`);
             const tx = await this.contract.withdraw();
+            console.log(`⏳ Transaction sent: ${tx.hash}`);
             await tx.wait();
+            console.log(`✅ Withdrawal successful!`);
             return true;
         }
         catch (error) {

@@ -18,6 +18,7 @@ class TwitterBot {
         });
         this.contractService = new contract_service_1.ContractService();
         this.mentionHandler = new mention_handler_1.MentionHandler(this.twitterClient, this.contractService);
+        this.startTime = new Date(); // Record when bot starts
     }
     async start() {
         console.log('🤖 Starting Prediction Betting Bot...');
@@ -52,15 +53,37 @@ class TwitterBot {
             console.error('❌ Failed to connect to smart contract:', error);
             return;
         }
+        // Initialize lastMentionId to avoid processing old mentions
+        await this.initializeLastMentionId();
         this.isRunning = true;
         console.log('🚀 Bot started successfully!');
         console.log('📡 Polling for mentions...');
+        console.log(`⏰ Only processing mentions after: ${this.startTime.toISOString()}`);
         // Start polling for mentions
         await this.pollForMentions();
     }
     async stop() {
         console.log('🛑 Stopping bot...');
         this.isRunning = false;
+    }
+    async initializeLastMentionId() {
+        try {
+            console.log('🔄 Getting recent mentions to avoid replying to old tweets...');
+            const me = await this.twitterClient.v2.me();
+            const recentMentions = await this.twitterClient.v2.userMentionTimeline(me.data.id, {
+                max_results: 5,
+                'tweet.fields': ['created_at']
+            });
+            if (recentMentions.data?.data && recentMentions.data.data.length > 0) {
+                // Sort by creation time and get the most recent
+                const sortedMentions = recentMentions.data.data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                this.lastMentionId = sortedMentions[0].id;
+                console.log(`✅ Set lastMentionId to: ${this.lastMentionId}`);
+            }
+        }
+        catch (error) {
+            console.log('⚠️  Could not initialize lastMentionId, will process all mentions');
+        }
     }
     async pollForMentions() {
         while (this.isRunning) {
@@ -106,8 +129,15 @@ class TwitterBot {
                     // Skip our own tweets
                     continue;
                 }
+                // Skip mentions older than bot start time (safety check)
+                const mentionTime = new Date(mention.created_at);
+                if (mentionTime < this.startTime) {
+                    console.log(`⏭️  Skipping old mention from ${mentionTime.toISOString()}`);
+                    continue;
+                }
                 console.log(`\n🔄 Processing mention from ${mention.author_id}:`);
                 console.log(`📝 "${mention.text}"`);
+                console.log(`⏰ Created: ${mention.created_at}`);
                 try {
                     await this.mentionHandler.processMention(mention);
                     console.log(`✅ Processed mention ${mention.id}`);
