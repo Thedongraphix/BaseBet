@@ -1,0 +1,41 @@
+{
+  "name": "prediction-betting-bot",
+  "version": "1.0.0",
+  "description": "Twitter bot for crypto prediction betting using AgentKit and Base blockchain",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "deploy:contract": "ts-node src/contracts/deploy.ts",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "twitter",
+    "bot",
+    "prediction",
+    "betting",
+    "crypto",
+    "agentkit",
+    "base",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@coinbase/onchainkit": "^0.10.0",
+    "@coinbase/coinbase-sdk": "^0.0.15",
+    "twitter-api-v2": "^1.15.0",
+    "ethers": "^6.8.0",
+    "dotenv": "^16.3.1",
+    "openai": "^4.20.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.0",
+    "ts-node": "^10.9.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
