@@ -1,0 +1,7 @@
+{
+  "network": "base-sepolia",
+  "contractAddress": "0x1111111111111111111111111111111111111111",
+  "deployedAt": "2025-07-13T12:59:36.872Z",
+  "deployer": "0x336D75CE358bE96a19D8874F3aE508C045B74828",
+  "isMockDeployment": true
+}
