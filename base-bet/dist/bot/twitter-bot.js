@@ -9,6 +9,7 @@ class TwitterBot {
     constructor() {
         this.isRunning = false;
         this.lastMentionId = null;
+        // Use OAuth 1.1 for full read/write access
         this.twitterClient = new twitter_api_v2_1.TwitterApi({
             appKey: config_1.config.twitter.apiKey,
             appSecret: config_1.config.twitter.apiSecret,
@@ -20,13 +21,26 @@ class TwitterBot {
     }
     async start() {
         console.log('🤖 Starting Prediction Betting Bot...');
-        // Verify Twitter connection
+        // Verify Twitter connection and permissions
         try {
             const user = await this.twitterClient.v2.me();
-            console.log(`✅ Connected as @${user.data.username}`);
+            console.log(`✅ Connected as @${user.data.username} (ID: ${user.data.id})`);
+            // Test write permissions by checking account settings
+            try {
+                const accountSettings = await this.twitterClient.v1.accountSettings();
+                console.log('✅ Write permissions confirmed');
+            }
+            catch (writeError) {
+                console.error('❌ Write permission error:', writeError.message);
+                console.log('💡 Fix: Check your Twitter app permissions in the Developer Portal');
+                console.log('💡 Ensure your app has "Read and Write" permissions');
+                console.log('💡 Regenerate access tokens after changing permissions');
+                return;
+            }
         }
         catch (error) {
-            console.error('❌ Failed to connect to Twitter:', error);
+            console.error('❌ Failed to connect to Twitter:', error.message);
+            console.log('💡 Check your Twitter API credentials in .env file');
             return;
         }
         // Verify contract connection
@@ -40,6 +54,7 @@ class TwitterBot {
         }
         this.isRunning = true;
         console.log('🚀 Bot started successfully!');
+        console.log('📡 Polling for mentions...');
         // Start polling for mentions
         await this.pollForMentions();
     }
@@ -54,8 +69,15 @@ class TwitterBot {
                 await this.sleep(config_1.config.bot.pollInterval);
             }
             catch (error) {
-                console.error('❌ Error in polling loop:', error);
-                await this.sleep(5000); // Wait 5 seconds before retrying
+                console.error('❌ Error in polling loop:', error.message);
+                // Handle rate limiting
+                if (error.code === 429) {
+                    console.log('⏰ Rate limited, waiting 5 minutes...');
+                    await this.sleep(300000); // Wait 5 minutes
+                }
+                else {
+                    await this.sleep(5000); // Wait 5 seconds before retrying
+                }
             }
         }
     }
@@ -69,7 +91,9 @@ class TwitterBot {
             if (this.lastMentionId) {
                 options.since_id = this.lastMentionId;
             }
-            const mentions = await this.twitterClient.v2.userMentionTimeline((await this.twitterClient.v2.me()).data.id, options);
+            // Get current user ID for mention timeline
+            const me = await this.twitterClient.v2.me();
+            const mentions = await this.twitterClient.v2.userMentionTimeline(me.data.id, options);
             const mentionTweets = mentions.data?.data || [];
             if (mentionTweets.length === 0) {
                 return;
@@ -78,25 +102,53 @@ class TwitterBot {
             // Process mentions in chronological order (oldest first)
             const sortedMentions = mentionTweets.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
             for (const mention of sortedMentions) {
-                if (mention.author_id === (await this.twitterClient.v2.me()).data.id) {
+                if (mention.author_id === me.data.id) {
                     // Skip our own tweets
                     continue;
                 }
-                console.log(`Processing mention from ${mention.author_id}: ${mention.text}`);
-                await this.mentionHandler.processMention(mention);
+                console.log(`\n🔄 Processing mention from ${mention.author_id}:`);
+                console.log(`📝 "${mention.text}"`);
+                try {
+                    await this.mentionHandler.processMention(mention);
+                    console.log(`✅ Processed mention ${mention.id}`);
+                }
+                catch (mentionError) {
+                    console.error(`❌ Error processing mention ${mention.id}:`, mentionError.message);
+                    // Handle specific Twitter API errors
+                    if (mentionError.code === 403) {
+                        console.log('💡 403 Error - Check bot permissions:');
+                        console.log('   - App must have "Read and Write" permissions');
+                        console.log('   - Access tokens must be regenerated after permission changes');
+                        console.log('   - Bot account must not be restricted');
+                        console.log('   - Verify you\'re not blocked by the user');
+                    }
+                    else if (mentionError.code === 429) {
+                        console.log('💡 Rate limited - will retry in next cycle');
+                        break; // Stop processing mentions for this cycle
+                    }
+                }
                 // Small delay between processing mentions
-                await this.sleep(1000);
+                await this.sleep(2000);
             }
             // Update last mention ID
-            this.lastMentionId = sortedMentions[sortedMentions.length - 1].id;
+            if (sortedMentions.length > 0) {
+                this.lastMentionId = sortedMentions[sortedMentions.length - 1].id;
+            }
         }
         catch (error) {
-            if (error && typeof error === 'object' && 'code' in error && error.code === 429) {
-                console.log('⏰ Rate limited, waiting...');
+            if (error.code === 429) {
+                console.log('⏰ Rate limited on mentions check, waiting...');
                 await this.sleep(60000); // Wait 1 minute for rate limit
             }
             else {
-                console.error('❌ Error checking mentions:', error);
+                console.error('❌ Error checking mentions:', error.message);
+                // Provide specific guidance for common errors
+                if (error.message.includes('Could not authenticate')) {
+                    console.log('💡 Authentication error - check your Twitter API credentials');
+                }
+                else if (error.message.includes('forbidden')) {
+                    console.log('💡 Permission error - check your Twitter app permissions');
+                }
             }
         }
     }

@@ -3,53 +3,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContractService = void 0;
 const ethers_1 = require("ethers");
 const config_1 = require("../utils/config");
-// Helper function to convert base64 private key to hex format
+// Helper function to convert private key to proper hex format
 function convertPrivateKeyToHex(privateKey) {
-    // If it's already in hex format (starts with 0x), return as is
-    if (privateKey.startsWith('0x')) {
+    // If it's already in proper hex format (starts with 0x and is 66 chars), return as is
+    if (privateKey.startsWith('0x') && privateKey.length === 66) {
+        console.log('✅ Using provided hex private key');
         return privateKey;
     }
-    // For development/testing, if we have issues with the CDP key format,
-    // generate a test key. This should be replaced with proper key handling in production
+    // If it's hex without 0x prefix and is 64 chars
+    if (!privateKey.startsWith('0x') && privateKey.length === 64) {
+        console.log('✅ Converting hex key to proper format');
+        return '0x' + privateKey;
+    }
+    // For very long keys (CDP format), try base64 conversion
     if (privateKey.length > 100) {
+        try {
+            const buffer = Buffer.from(privateKey, 'base64');
+            const hexKey = '0x' + buffer.toString('hex');
+            if (hexKey.length === 66) {
+                console.log('✅ Converted CDP base64 key to hex');
+                return hexKey;
+            }
+        }
+        catch (error) {
+            console.warn('Failed to convert CDP base64 key');
+        }
         console.warn('⚠️  CDP private key format detected - using generated test key for development');
         console.warn('⚠️  This is for testing only - do not use in production');
-        // Generate a test private key for development
         const testKey = ethers_1.ethers.Wallet.createRandom().privateKey;
         return testKey;
     }
-    // Convert base64 to hex
-    try {
-        const buffer = Buffer.from(privateKey, 'base64');
-        const hexKey = '0x' + buffer.toString('hex');
-        // Ensure the key is 64 characters (32 bytes) plus 0x prefix
-        if (hexKey.length !== 66) {
-            console.error(`Invalid private key length: ${hexKey.length}, expected 66`);
-            throw new Error('Invalid private key length');
-        }
-        return hexKey;
-    }
-    catch (error) {
-        console.error('Error converting private key:', error);
-        // Try treating it as a hex string without 0x prefix
-        try {
-            if (privateKey.length === 64) {
-                return '0x' + privateKey;
-            }
-            // If it's PEM format, extract the key
-            if (privateKey.includes('-----BEGIN') && privateKey.includes('-----END')) {
-                // This is a PEM formatted key - for now, we'll skip this and use a test key
-                console.warn('PEM formatted key detected - using test key for development');
-                return ethers_1.ethers.Wallet.createRandom().privateKey;
-            }
-            throw new Error('Unsupported private key format');
-        }
-        catch (secondError) {
-            console.error('Failed to parse private key in any format:', secondError);
-            console.warn('Using generated test key for development');
-            return ethers_1.ethers.Wallet.createRandom().privateKey;
-        }
-    }
+    // Final fallback - generate test key
+    console.warn('⚠️  Unrecognized private key format - using generated test key');
+    console.warn('⚠️  This is for testing only - do not use in production');
+    return ethers_1.ethers.Wallet.createRandom().privateKey;
 }
 class ContractService {
     constructor() {
