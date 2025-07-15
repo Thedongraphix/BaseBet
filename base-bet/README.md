@@ -1,112 +1,166 @@
-# MiniKit Template
+# Farcaster Prediction Betting Mini App
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-onchain --mini`](), configured with:
+🎯 **A prediction betting mini app built for Farcaster using MiniKit and Base blockchain**
 
-- [MiniKit](https://docs.base.org/builderkits/minikit/overview)
-- [OnchainKit](https://www.base.org/builders/onchainkit)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Next.js](https://nextjs.org/docs)
+## Why Farcaster over Twitter?
 
-## Getting Started
+✅ **Native onchain integration** - Built specifically for Base blockchain  
+✅ **No API rate limits** - No Twitter API restrictions  
+✅ **Better UX** - Frame-based interactions are more intuitive  
+✅ **Built-in wallet connectivity** - Seamless crypto transactions  
+✅ **Crypto-native audience** - Users already understand betting/DeFi  
+✅ **Real-time notifications** - Built-in notification system  
+✅ **OnchainKit compatibility** - Professional UI components  
 
-1. Install dependencies:
+## Features
+
+- 🎯 **Create Prediction Markets** - Turn any prediction into a betting market
+- 💰 **Place Bets** - Bet ETH on true/false outcomes
+- 📊 **Live Statistics** - Real-time betting pools and odds
+- 🔔 **Notifications** - Get notified about market events
+- 🔗 **Base Integration** - Secure smart contracts on Base Sepolia
+- 📱 **Mobile Friendly** - Optimized for mobile Farcaster experience
+
+## Quick Setup
+
+### 1. Configure Environment
 ```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-# or
-bun install
+# Run the setup script to configure with working addresses
+chmod +x setup-env.sh
+./setup-env.sh
 ```
 
-2. Verify environment variables, these will be set up by the `npx create-onchain --mini` command:
-
-You can regenerate the FARCASTER Account Association environment variables by running `npx create-onchain --manifest` in your project directory.
-
-The environment variables enable the following features:
-
-- Frame metadata - Sets up the Frame Embed that will be shown when you cast your frame
-- Account association - Allows users to add your frame to their account, enables notifications
-- Redis API keys - Enable Webhooks and background notifications for your application by storing users notification details
-
-```bash
-# Shared/OnchainKit variables
-NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME=
-NEXT_PUBLIC_URL=
-NEXT_PUBLIC_ICON_URL=
-NEXT_PUBLIC_ONCHAINKIT_API_KEY=
-
-# Frame metadata
-FARCASTER_HEADER=
-FARCASTER_PAYLOAD=
-FARCASTER_SIGNATURE=
-NEXT_PUBLIC_APP_ICON=
-NEXT_PUBLIC_APP_SUBTITLE=
-NEXT_PUBLIC_APP_DESCRIPTION=
-NEXT_PUBLIC_APP_SPLASH_IMAGE=
-NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR=
-NEXT_PUBLIC_APP_PRIMARY_CATEGORY=
-NEXT_PUBLIC_APP_HERO_IMAGE=
-NEXT_PUBLIC_APP_TAGLINE=
-NEXT_PUBLIC_APP_OG_TITLE=
-NEXT_PUBLIC_APP_OG_DESCRIPTION=
-NEXT_PUBLIC_APP_OG_IMAGE=
-
-# Redis config
-REDIS_URL=
-REDIS_TOKEN=
+### 2. Set Required Variables
+Edit `.env` and add:
+```env
+NEXT_PUBLIC_URL=https://your-app-url.com
+NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_api_key_from_coinbase
 ```
 
-3. Start the development server:
+### 3. Generate Farcaster Manifest
+```bash
+npx create-onchain --manifest
+```
+
+### 4. Start Development
 ```bash
 npm run dev
 ```
 
-## Template Features
+## Pre-configured Settings
 
-### Frame Configuration
-- `.well-known/farcaster.json` endpoint configured for Frame metadata and account association
-- Frame metadata automatically added to page headers in `layout.tsx`
+The app comes pre-configured with working addresses from our previous setup:
 
-### Background Notifications
-- Redis-backed notification system using Upstash
-- Ready-to-use notification endpoints in `api/notify` and `api/webhook`
-- Notification client utilities in `lib/notification-client.ts`
+- **Smart Contract**: `0xad8063e222D6B893eEBDe0f85C398b32f0A3cF2C` (Base Sepolia)
+- **Network**: Base Sepolia (testnet)
+- **Wallet**: `0x0408a00e58eCb6D4914C4fD3DA7B9316cda8651d`
 
-### Theming
-- Custom theme defined in `theme.css` with OnchainKit variables
-- Pixel font integration with Pixelify Sans
-- Dark/light mode support through OnchainKit
+## How It Works
 
-### MiniKit Provider
-The app is wrapped with `MiniKitProvider` in `providers.tsx`, configured with:
-- OnchainKit integration
-- Access to Frames context
-- Sets up Wagmi Connectors
-- Sets up Frame SDK listeners
-- Applies Safe Area Insets
+### Creating Prediction Markets
+1. User types a prediction in the app
+2. Smart contract creates a new market
+3. Other users can bet on true/false outcomes
 
-## Customization
+### Placing Bets
+1. Select AGREE or DISAGREE position
+2. Choose bet amount (0.001 - 10 ETH)
+3. Connect wallet and confirm transaction
+4. Bet is recorded on-chain
 
-To get started building your own frame, follow these steps:
+### Market Resolution
+- Markets expire after set duration (default 30 days)
+- Winners receive proportional share of losing side's bets
+- 2% platform fee for sustainability
 
-1. Remove the DemoComponents:
-   - Delete `components/DemoComponents.tsx`
-   - Remove demo-related imports from `page.tsx`
+## MiniKit Features Used
 
-2. Start building your Frame:
-   - Modify `page.tsx` to create your Frame UI
-   - Update theme variables in `theme.css`
-   - Adjust MiniKit configuration in `providers.tsx`
+- **MiniKitProvider** - OnchainKit integration with Base
+- **Transaction Components** - Seamless smart contract interactions
+- **Identity Components** - User profiles and wallet display
+- **Notification System** - Real-time updates
+- **Frame Integration** - Native Farcaster experience
 
-3. Add your frame to your account:
-   - Cast your frame to see it in action
-   - Share your frame with others to start building your community
+## Component Architecture
 
-## Learn More
+```
+app/
+├── components/
+│   ├── PredictionBetting.tsx     # Main betting interface
+│   ├── DemoComponents.tsx        # UI components (Button, Card, Icon)
+├── page.tsx                      # Main app layout
+├── providers.tsx                 # MiniKit and OnchainKit setup
+└── .well-known/farcaster.json/   # Farcaster manifest
+```
 
-- [MiniKit Documentation](https://docs.base.org/builderkits/minikit/overview)
-- [OnchainKit Documentation](https://docs.base.org/builderkits/onchainkit/getting-started)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+## Smart Contract Integration
+
+The app uses OnchainKit's Transaction components for seamless blockchain interactions:
+
+```typescript
+<Transaction
+  contracts={[{
+    address: PREDICTION_CONTRACT_ADDRESS,
+    abi: PREDICTION_CONTRACT_ABI,
+    functionName: "createMarket",
+    args: [prediction, BigInt(duration)],
+  }]}
+>
+  <TransactionButton>Create Market</TransactionButton>
+</Transaction>
+```
+
+## Deployment
+
+### 1. Deploy to Vercel
+```bash
+vercel deploy
+```
+
+### 2. Update Environment
+- Set `NEXT_PUBLIC_URL` to your deployed URL
+- Configure Redis for notifications (optional)
+
+### 3. Register with Farcaster
+- Add your app to Farcaster directory
+- Users can install as a mini app
+
+## Development vs Production
+
+**Development (Current)**:
+- Base Sepolia testnet
+- Test ETH for transactions
+- Debug mode enabled
+
+**Production (Future)**:
+- Base Mainnet
+- Real ETH transactions
+- Production optimizations
+
+## Next Steps
+
+1. **Test the Mini App** - Run locally and test functionality
+2. **Deploy to Vercel** - Get a public URL
+3. **Generate Manifest** - Configure Farcaster integration
+4. **Add to Farcaster** - Launch as a mini app
+5. **Marketing** - Share with crypto prediction communities
+
+## Benefits Over Twitter Bot
+
+| Feature | Twitter Bot | Farcaster Mini App |
+|---------|-------------|-------------------|
+| Wallet Integration | Manual payment links | Native wallet connect |
+| Transaction UX | External wallet steps | One-click transactions |
+| Rate Limits | 1,500 tweets/month | No limits |
+| Audience | General Twitter | Crypto-native users |
+| Onchain UX | Basic text responses | Rich transaction UI |
+| Notifications | Limited | Full notification system |
+
+## Support
+
+- **Smart Contract**: Already deployed and tested
+- **Wallet**: Funded and working
+- **UI Components**: OnchainKit professional components
+- **Documentation**: Comprehensive setup guides
+
+Ready to revolutionize prediction betting on Farcaster! 🚀 
