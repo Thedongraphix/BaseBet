@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 import {
   Transaction,
@@ -9,8 +9,6 @@ import {
   TransactionToastAction,
   TransactionToastIcon,
   TransactionToastLabel,
-  TransactionError,
-  TransactionResponse,
   TransactionStatusAction,
   TransactionStatusLabel,
   TransactionStatus,
@@ -150,11 +148,10 @@ export function CreateMarketCard() {
           onSuccess={handleCreateMarket}
         >
           <TransactionButton
+            text="Create Market 🎯"
             disabled={!prediction.trim() || !address}
             className="w-full"
-          >
-            Create Market 🎯
-          </TransactionButton>
+          />
           <TransactionStatus>
             <TransactionStatusLabel />
             <TransactionStatusAction />
@@ -302,14 +299,13 @@ export function BettingCard({ marketId, marketInfo }: { marketId: string; market
           onSuccess={handleBet}
         >
           <TransactionButton
-            disabled={!address || position === null || !betAmount || betValue === 0n}
-            className="w-full"
-          >
-            {position === null 
+            text={position === null 
               ? "Select Position" 
               : `Bet ${betAmount} ETH on ${position ? "AGREE" : "DISAGREE"}`
             }
-          </TransactionButton>
+            disabled={!address || position === null || !betAmount || betValue === 0n}
+            className="w-full"
+          />
           <TransactionStatus>
             <TransactionStatusLabel />
             <TransactionStatusAction />
@@ -374,10 +370,10 @@ export function MarketStatsCard({ marketInfo }: { marketInfo: MarketInfo | null 
   );
 }
 
-export function PredictionBetting({ initialMarketId, initialPrediction }: PredictionBettingProps) {
+export function PredictionBetting({ initialMarketId }: PredictionBettingProps) {
   const [activeTab, setActiveTab] = useState(initialMarketId ? "bet" : "create");
   const [marketId] = useState(initialMarketId || "");
-  const [marketInfo, setMarketInfo] = useState<MarketInfo | null>(null);
+  const [marketInfo] = useState<MarketInfo | null>(null);
   const { address } = useAccount();
 
   // TODO: Implement market info fetching using wagmi hooks

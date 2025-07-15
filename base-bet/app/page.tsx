@@ -2,7 +2,6 @@
 
 import {
   useMiniKit,
-  useAddFrame,
   useOpenUrl,
 } from "@coinbase/onchainkit/minikit";
 import {
@@ -18,15 +17,12 @@ import {
   WalletDropdown,
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { Button } from "./components/DemoComponents";
+import { useEffect } from "react";
 import { PredictionBetting } from "./components/PredictionBetting";
 
 export default function App() {
-  const { setFrameReady, isFrameReady, context } = useMiniKit();
-  const [frameAdded, setFrameAdded] = useState(false);
+  const { setFrameReady, isFrameReady } = useMiniKit();
 
-  const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
 
   useEffect(() => {
@@ -35,25 +31,7 @@ export default function App() {
     }
   }, [setFrameReady, isFrameReady]);
 
-  const handleAddFrame = useCallback(async () => {
-    const frameAdded = await addFrame();
-    setFrameAdded(Boolean(frameAdded));
-  }, [addFrame]);
-
-  const saveFrameButton = useMemo(() => {
-    if (context && !context.client.added) {
-      return (
-        <Button
-          variant="primary"
-          onClick={handleAddFrame}
-          className="mb-4"
-        >
-          📌 Add to Farcaster
-        </Button>
-      );
-    }
-    return null;
-  }, [context, handleAddFrame]);
+  const saveFrameButton = null;
 
   return (
     <div className="min-h-screen bg-[var(--app-background)]">
