@@ -1,252 +1,112 @@
-# Twitter Prediction Betting Bot
+# MiniKit Template
 
-A Twitter bot that enables crypto prediction betting directly in threads using AgentKit and Base blockchain. Users can mention the bot to create and participate in PvP bets on any prediction tweet.
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-onchain --mini`](), configured with:
 
-## Features
+- [MiniKit](https://docs.base.org/builderkits/minikit/overview)
+- [OnchainKit](https://www.base.org/builders/onchainkit)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Next.js](https://nextjs.org/docs)
 
-- 🐦 **Twitter Integration**: Respond to mentions and create betting markets
-- 🔗 **Base Blockchain**: Built on Base Sepolia/Mainnet using AgentKit
-- 💰 **Smart Contracts**: Decentralized betting with automatic payouts
-- 🎯 **PvP Betting**: True vs False predictions with odds
-- 📊 **Real-time Stats**: Market status and betting pool information
-- 🛡️ **Secure**: Non-custodial betting with smart contract escrow
+## Getting Started
 
-## Prerequisites
-
-- Node.js 18+
-- Twitter Developer Account (Basic plan minimum)
-- Coinbase Developer Platform account
-- Base Sepolia/Mainnet ETH for gas fees
-
-## Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd prediction-betting-bot
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys and configuration
-   ```
-
-4. **Build the project**
-   ```bash
-   npm run build
-   ```
-
-## Environment Variables
-
-Create a `.env` file with the following variables:
-
-```env
-# Coinbase Developer Platform
-CDP_API_KEY_NAME=your_cdp_api_key_name
-CDP_API_KEY_PRIVATE_KEY=your_cdp_private_key
-
-# OpenRouter
-OPENROUTER_API_KEY=your_openrouter_api_key
-
-# Twitter API (Requires paid plan)
-TWITTER_BEARER_TOKEN=your_twitter_bearer_token
-TWITTER_API_KEY=your_twitter_api_key
-TWITTER_API_SECRET=your_twitter_api_secret
-TWITTER_ACCESS_TOKEN=your_twitter_access_token
-TWITTER_ACCESS_SECRET=your_twitter_access_secret
-TWITTER_BOT_USERNAME=your_bot_username
-
-# Blockchain
-NETWORK=base-sepolia  # Use base-mainnet for production
-CONTRACT_ADDRESS=  # Will be set after deployment
-
-# Bot Configuration
-POLL_INTERVAL=60000  # 1 minute
-MAX_BET_AMOUNT=1.0   # ETH
-MIN_BET_AMOUNT=0.01  # ETH
-DEFAULT_MARKET_DURATION=30  # days
+1. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+# or
+bun install
 ```
 
-## Deployment
+2. Verify environment variables, these will be set up by the `npx create-onchain --mini` command:
 
-### 1. Deploy Smart Contract
+You can regenerate the FARCASTER Account Association environment variables by running `npx create-onchain --manifest` in your project directory.
+
+The environment variables enable the following features:
+
+- Frame metadata - Sets up the Frame Embed that will be shown when you cast your frame
+- Account association - Allows users to add your frame to their account, enables notifications
+- Redis API keys - Enable Webhooks and background notifications for your application by storing users notification details
 
 ```bash
-# Deploy to Base Sepolia (testnet)
-npm run deploy:contract
+# Shared/OnchainKit variables
+NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME=
+NEXT_PUBLIC_URL=
+NEXT_PUBLIC_ICON_URL=
+NEXT_PUBLIC_ONCHAINKIT_API_KEY=
 
-# The contract address will be automatically added to your .env file
+# Frame metadata
+FARCASTER_HEADER=
+FARCASTER_PAYLOAD=
+FARCASTER_SIGNATURE=
+NEXT_PUBLIC_APP_ICON=
+NEXT_PUBLIC_APP_SUBTITLE=
+NEXT_PUBLIC_APP_DESCRIPTION=
+NEXT_PUBLIC_APP_SPLASH_IMAGE=
+NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR=
+NEXT_PUBLIC_APP_PRIMARY_CATEGORY=
+NEXT_PUBLIC_APP_HERO_IMAGE=
+NEXT_PUBLIC_APP_TAGLINE=
+NEXT_PUBLIC_APP_OG_TITLE=
+NEXT_PUBLIC_APP_OG_DESCRIPTION=
+NEXT_PUBLIC_APP_OG_IMAGE=
+
+# Redis config
+REDIS_URL=
+REDIS_TOKEN=
 ```
 
-### 2. Start the Bot
-
+3. Start the development server:
 ```bash
-# Development mode
 npm run dev
-
-# Production mode
-npm run start
 ```
 
-## Usage
+## Template Features
 
-### Commands
+### Frame Configuration
+- `.well-known/farcaster.json` endpoint configured for Frame metadata and account association
+- Frame metadata automatically added to page headers in `layout.tsx`
 
-**Create Market:**
-```
-@YourBot create market
-```
+### Background Notifications
+- Redis-backed notification system using Upstash
+- Ready-to-use notification endpoints in `api/notify` and `api/webhook`
+- Notification client utilities in `lib/notification-client.ts`
 
-**Place Bet:**
-```
-@YourBot I bet 0.1 ETH that this is true
-@YourBot I bet 0.05 ETH that this is false
-```
+### Theming
+- Custom theme defined in `theme.css` with OnchainKit variables
+- Pixel font integration with Pixelify Sans
+- Dark/light mode support through OnchainKit
 
-**Check Status:**
-```
-@YourBot status
-```
+### MiniKit Provider
+The app is wrapped with `MiniKitProvider` in `providers.tsx`, configured with:
+- OnchainKit integration
+- Access to Frames context
+- Sets up Wagmi Connectors
+- Sets up Frame SDK listeners
+- Applies Safe Area Insets
 
-**Get Help:**
-```
-@YourBot help
-```
+## Customization
 
-### Example Workflow
+To get started building your own frame, follow these steps:
 
-1. Someone tweets a prediction: "Bitcoin will reach $100k by end of 2024"
-2. Reply: "@YourBot create market"
-3. Bot creates a prediction market for the tweet
-4. Others can bet: "@YourBot I bet 0.1 ETH that this is true"
-5. Bot provides payment instructions and tracks bets
-6. Market resolves automatically after the duration
+1. Remove the DemoComponents:
+   - Delete `components/DemoComponents.tsx`
+   - Remove demo-related imports from `page.tsx`
 
-## Smart Contract Features
+2. Start building your Frame:
+   - Modify `page.tsx` to create your Frame UI
+   - Update theme variables in `theme.css`
+   - Adjust MiniKit configuration in `providers.tsx`
 
-- **Decentralized**: No central authority controls funds
-- **Transparent**: All bets and outcomes are on-chain
-- **Automatic Payouts**: Winners receive funds automatically
-- **Platform Fee**: 2% fee for platform sustainability
-- **Bet Limits**: Configurable min/max bet amounts
-- **Time-based Markets**: Automatic expiration and resolution
+3. Add your frame to your account:
+   - Cast your frame to see it in action
+   - Share your frame with others to start building your community
 
-## API Structure
+## Learn More
 
-### ContractService
-- `createMarket(tweetId, prediction, duration)`
-- `placeBet(tweetId, position, amount)`
-- `getMarketInfo(tweetId)`
-- `marketExists(tweetId)`
-
-### BetParser
-- `parseBetFromTweet(text)` - Extract bet amount and position
-- `formatPosition(position)` - Format true/false as ✅/❌
-- `generateBetSummary(betInfo)` - Create bet summary text
-
-### MentionHandler
-- `processMention(tweet)` - Handle incoming mentions
-- `handleBetRequest(tweet)` - Process betting commands
-- `handleMarketCreation(tweet)` - Create new markets
-- `handleStatusRequest(tweet)` - Show market status
-
-## Development
-
-### Project Structure
-
-```
-prediction-betting-bot/
-├── src/
-│   ├── bot/
-│   │   ├── twitter-bot.ts          # Main bot class
-│   │   ├── mention-handler.ts      # Handle Twitter mentions
-│   │   └── bet-parser.ts          # Parse betting commands
-│   ├── contracts/
-│   │   ├── PredictionBetting.sol   # Smart contract
-│   │   └── deploy.ts              # Deployment script
-│   ├── services/
-│   │   ├── contract-service.ts     # Blockchain interactions
-│   │   ├── oracle-service.ts       # Market resolution
-│   │   └── wallet-service.ts       # Wallet operations
-│   ├── utils/
-│   │   ├── config.ts              # Configuration
-│   │   └── logger.ts              # Logging utilities
-│   └── index.ts                   # Main entry point
-├── .env.example                   # Environment template
-├── package.json                   # Dependencies
-├── tsconfig.json                  # TypeScript config
-└── README.md                      # This file
-```
-
-### Testing
-
-```bash
-# Run development server
-npm run dev
-
-# Test by mentioning your bot on Twitter
-# Check console logs for debugging information
-```
-
-## Security Considerations
-
-- **Private Keys**: Never commit private keys to version control
-- **Rate Limits**: Bot respects Twitter API rate limits
-- **Input Validation**: All user inputs are validated
-- **Error Handling**: Comprehensive error handling and logging
-- **Smart Contract Security**: Audited contract with safety checks
-
-## Troubleshooting
-
-### Common Issues
-
-**Twitter API errors:**
-- Check your API keys and permissions
-- Ensure you have the correct Twitter API plan
-- Verify rate limits haven't been exceeded
-
-**Contract errors:**
-- Confirm contract address is correct
-- Check network configuration (sepolia vs mainnet)
-- Verify wallet has sufficient ETH for gas
-
-**Bot not responding:**
-- Check console logs for errors
-- Verify bot is mentioned correctly
-- Confirm bot has reply permissions
-
-### Debugging
-
-Enable verbose logging by setting:
-```bash
-export DEBUG=prediction-betting-bot:*
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Support
-
-For issues and questions:
-- Create an issue on GitHub
-- Check the troubleshooting section
-- Review the smart contract documentation
-
----
-
-Built with ❤️ using AgentKit and Base blockchain. 
+- [MiniKit Documentation](https://docs.base.org/builderkits/minikit/overview)
+- [OnchainKit Documentation](https://docs.base.org/builderkits/onchainkit/getting-started)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
