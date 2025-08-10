@@ -42,7 +42,7 @@ NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_api_key_from_coinbase
 npx create-onchain --manifest
 ```
 
-### 4. Start Development
+### 4. Start Development sever
 ```bash
 npm run dev
 ```
