@@ -1,4 +1,4 @@
-#  Betting Mini App
+#  Betting Mini App on base
 
 🎯 **A prediction betting mini app built for Farcaster using MiniKit and Base blockchain**
 
